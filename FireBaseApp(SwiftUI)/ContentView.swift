@@ -15,12 +15,6 @@ struct ContentView: View {
         ZStack {
             Color.black
 
-//            RoundedRectangle(cornerSize: 30, style: .continuous)
-//                .foregroundStyle(colors: [.pink, .red], startPoint: .topLeading, endPoint: .bottomTrailing)
-//                .frame(width: 1000, height: 400)
-//                .rotationEffect(.degrees(135))
-//                .offset(y: -359)
-
             RoundedRectangle(cornerSize: CGSize(width: 30, height: 30), style: .continuous)
                 .fill(.linearGradient(colors: [.pink, .red], startPoint: .topLeading, endPoint: .bottomTrailing))
                 .frame(width: 1000, height: 400)
@@ -36,10 +30,10 @@ struct ContentView: View {
                 TextField("Email", text: $email)
                     .foregroundStyle(.white)
                     .textFieldStyle(.plain)
-                   // .placeholder(when: email.isEmpty)
-                Text("Email")
-                    .foregroundStyle(.white)
-                    .bold()
+                    .placeholder(when: email.isEmpty) {
+                        Text("Email")
+                            .foregroundColor(.gray)
+                    }
 
                 Rectangle()
                     .frame(width: 350, height: 1)
@@ -48,10 +42,30 @@ struct ContentView: View {
                 SecureField("Password", text: $password)
                     .foregroundStyle(.white)
                     .textFieldStyle(.plain)
-                // .placeholder(when: password.isEmpty)
-                Text("Password")
+                    .placeholder(when: password.isEmpty) {
+                        Text("Password")
+                            .foregroundStyle(.white)
+                            .bold()
+                    }
+
+                Rectangle()
+                    .frame(width: 350, height: 1)
                     .foregroundStyle(.white)
-                    .bold()
+
+                Button {
+
+                } label: {
+                    Text("Sign in")
+                        .bold()
+                        .frame(width: 200, height: 40)
+                        .background(
+                            RoundedRectangle(cornerSize: CGSize(width: 10, height: 10), style: .continuous)
+                                .fill(.linearGradient(colors: [.pink, .red],
+                                                      startPoint: .top,
+                                                      endPoint: .bottomTrailing))
+                        )
+                        .foregroundStyle(.white)
+                }
 
                 Button {
 
