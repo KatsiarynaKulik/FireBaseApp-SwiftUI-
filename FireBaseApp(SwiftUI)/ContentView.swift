@@ -37,7 +37,7 @@ struct ContentView: View {
             VStack(spacing: 20) {  // Vertical Stack - вертикальное расположение с отступом 20
                 // Заголовок "Welcome"
                 Text("Welcome")
-                    .foregroundStyle(.white)                    // Белый цвет текста
+                    .foregroundStyle(.white)
                     .font(.system(size: 40, weight: .bold, design: .rounded)) // Системный шрифт 40, жирный, скругленный
                     .offset(x: -100, y: -100)                   // Смещение влево и вверх
 
