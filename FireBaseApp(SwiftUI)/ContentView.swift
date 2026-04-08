@@ -53,8 +53,8 @@ struct ContentView: View {
 
                 // Разделительная линия под полем Email
                 Rectangle()
-                    .frame(width: 350, height: 1)  // Ширина 350, высота 1 (тонкая линия)
-                    .foregroundStyle(.white)        // Белый цвет линии
+                    .frame(width: 350, height: 1)  
+                    .foregroundStyle(.white)
 
                 // Поле ввода пароля (SecureField скрывает вводимые символы)
                 SecureField("Password", text: $password)
