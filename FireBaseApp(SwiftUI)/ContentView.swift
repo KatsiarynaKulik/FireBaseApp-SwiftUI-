@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-
-import SwiftUI
+import Firebase
+import FirebaseAuth
 
 // MARK: - Основное представление экрана входа
 struct ContentView: View {
@@ -15,102 +15,116 @@ struct ContentView: View {
     // @State позволяет изменять значения внутри структуры View и автоматически обновлять UI
     @State private var email = ""      // Хранит введенный email
     @State private var password = ""   // Хранит введенный пароль
+    @State private var userIsLoggeIn = false
 
     // MARK: - Body (Пользовательский интерфейс)
     var body: some View {
         // ZStack - наложение элементов друг на друга по оси Z (глубине)
         ZStack {
-            // 1. Фоновый цвет - черный на весь экран
             Color.black
 
-            // 2. Декоративный элемент - большой повернутый прямоугольник с градиентом
             RoundedRectangle(cornerSize: CGSize(width: 30, height: 30), style: .continuous)
-                // Заливка линейным градиентом от розового к красному
                 .fill(.linearGradient(colors: [.pink, .red],
-                                      startPoint: .topLeading,    // Начало градиента: верхний левый угол
-                                      endPoint: .bottomTrailing)) // Конец градиента: нижний правый угол
-                .frame(width: 1000, height: 400)  // Размер прямоугольника
-                .rotationEffect(.degrees(135))    // Поворот на 135 градусов
-                .offset(y: -359)                  // Смещение по вертикали (создает диагональную полосу)
+                                      startPoint: .topLeading,
+                                      endPoint: .bottomTrailing))
+                .frame(width: 1000, height: 400)
+                .rotationEffect(.degrees(135))
+                .offset(y: -359)
 
-            // 3. Основной контент (форма входа)
-            VStack(spacing: 20) {  // Vertical Stack - вертикальное расположение с отступом 20
-                // Заголовок "Welcome"
+            VStack(spacing: 20) {  
                 Text("Welcome")
                     .foregroundStyle(.white)
-                    .font(.system(size: 40, weight: .bold, design: .rounded)) // Системный шрифт 40, жирный, скругленный
-                    .offset(x: -100, y: -100)                   // Смещение влево и вверх
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .offset(x: -100, y: -100)
 
-                // Поле ввода Email
-                TextField("Email", text: $email)  // $email - двусторонняя привязка (binding)
-                    .foregroundStyle(.white)       // Цвет вводимого текста
-                    .textFieldStyle(.plain)        // Простой стиль без рамки
-                    // Кастомный плейсхолдер (отображается когда поле пустое)
+                TextField("Email", text: $email)
+                    .foregroundStyle(.white)
+                    .textFieldStyle(.plain)
                     .placeholder(when: email.isEmpty) {
                         Text("Email")
-                            .foregroundColor(.gray)  // Серый цвет для плейсхолдера
+                            .foregroundColor(.gray)
                     }
 
-                // Разделительная линия под полем Email
                 Rectangle()
                     .frame(width: 350, height: 1)  
                     .foregroundStyle(.white)
 
-                // Поле ввода пароля (SecureField скрывает вводимые символы)
                 SecureField("Password", text: $password)
                     .foregroundStyle(.white)
                     .textFieldStyle(.plain)
-                    // Кастомный плейсхолдер для поля пароля
                     .placeholder(when: password.isEmpty) {
                         Text("Password")
                             .foregroundStyle(.white)
-                            .bold()  // Жирное начертание
+                            .bold()
                     }
 
-                // Разделительная линия под полем пароля
                 Rectangle()
                     .frame(width: 350, height: 1)
                     .foregroundStyle(.white)
 
-                // Кнопка "Sign in" (войти)
                 Button {
-                    // TODO: Добавить логику входа
-                    // Здесь будет код авторизации
+                    register()
                 } label: {
                     Text("Sign in")
-                        .bold()                              // Жирный текст
-                        .frame(width: 200, height: 40)       // Фиксированный размер кнопки
+                        .bold()
+                        .frame(width: 200, height: 40)
                         .background(
-                            // Скругленный прямоугольник для фона кнопки
                             RoundedRectangle(cornerSize: CGSize(width: 10, height: 10), style: .continuous)
                                 .fill(.linearGradient(colors: [.pink, .red],
-                                                      startPoint: .top,           // Градиент сверху
-                                                      endPoint: .bottomTrailing)) // ...вниз-вправо
+                                                      startPoint: .top,
+                                                      endPoint: .bottomTrailing))
                         )
-                        .foregroundStyle(.white)  // Цвет текста кнопки
+                        .foregroundStyle(.white)
                 }
 
-                // Кнопка "Already have an account? Login" (уже есть аккаунт? Войти)
                 Button {
-                    // TODO: Добавить навигацию на экран входа
-                    // Здесь будет переход на экран логина
+                    login()
                 } label: {
                     Text("Already have an account? Login")
                         .bold()
                         .foregroundStyle(.white)
                 }
-                .padding(.top)    // Отступ сверху
-                .offset(y: 110)   // Смещение вниз (приподнимает кнопку над декоративным элементом)
+                .padding(.top)
+                .offset(y: 110)
             }
-            .frame(width: 350)  // Фиксированная ширина VStack
+            .frame(width: 350)
+            onAppear {
+                let _ = Auth.auth().addStateDidChangeListener { auth, user in
+                    if user != nil {
+                        userIsLoggeIn.toggle()
+                    }
+
+                }
+            }
         }
-        .ignoresSafeArea()  // Игнорирует безопасные зоны (занимает весь экран, включая Dynamic Island и панель индикаторов)
+        .ignoresSafeArea()
     }
+
+    func login() {
+        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Ошибка входа \(error.localizedDescription)")
+            } else {
+                print("Пользователь успешно вошел в аккаунт")
+            }
+
+        }
+    }
+
+    func register() {
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Ошибка авторизации \(error.localizedDescription)")
+            } else {
+                print("Пользователь успешно зарегистрирован")
+            }
+
+        }
+    }
+
 }
 
-// MARK: - Расширение View для кастомного плейсхолдера
 extension View {
-    /// Добавляет кастомный плейсхолдер для текстовых полей
     /// - Parameters:
     ///   - shouldShow: Условие отображения плейсхолдера (обычно когда поле пустое)
     ///   - alignment: Выравнивание плейсхолдера (по умолчанию .leading - левый край)
@@ -133,7 +147,6 @@ extension View {
     }
 }
 
-// MARK: - Preview для SwiftUI Canvas
 #Preview {
     ContentView()
 }
