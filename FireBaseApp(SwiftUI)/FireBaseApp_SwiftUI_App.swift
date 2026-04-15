@@ -10,14 +10,17 @@ import Firebase
 
 @main
 struct FireBaseApp_SwiftUI_App: App {
+    @State private var dataManager = DataManager()
 
     init() {
-        FirebaseApp.configure()
+       // FireBaseApp_SwiftUI_App.configure()
+       // FirebaseApp.configure()
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(dataManager)
         }
     }
 }

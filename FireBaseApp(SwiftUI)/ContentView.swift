@@ -9,17 +9,20 @@ import SwiftUI
 import Firebase
 import FirebaseAuth
 
-// MARK: - Основное представление экрана входа
 struct ContentView: View {
-    // MARK: - Состояния (State Properties)
-    // @State позволяет изменять значения внутри структуры View и автоматически обновлять UI
-    @State private var email = ""      // Хранит введенный email
-    @State private var password = ""   // Хранит введенный пароль
+    @State private var email = ""
+    @State private var password = ""
     @State private var userIsLoggeIn = false
 
-    // MARK: - Body (Пользовательский интерфейс)
     var body: some View {
-        // ZStack - наложение элементов друг на друга по оси Z (глубине)
+        if userIsLoggeIn {
+            ListView()
+        } else {
+            content
+        }
+    }
+
+    var content: some View {
         ZStack {
             Color.black
 
@@ -31,7 +34,7 @@ struct ContentView: View {
                 .rotationEffect(.degrees(135))
                 .offset(y: -359)
 
-            VStack(spacing: 20) {  
+            VStack(spacing: 20) {
                 Text("Welcome")
                     .foregroundStyle(.white)
                     .font(.system(size: 40, weight: .bold, design: .rounded))
@@ -46,7 +49,7 @@ struct ContentView: View {
                     }
 
                 Rectangle()
-                    .frame(width: 350, height: 1)  
+                    .frame(width: 350, height: 1)
                     .foregroundStyle(.white)
 
                 SecureField("Password", text: $password)
@@ -88,12 +91,11 @@ struct ContentView: View {
                 .offset(y: 110)
             }
             .frame(width: 350)
-            onAppear {
+            .onAppear {
                 let _ = Auth.auth().addStateDidChangeListener { auth, user in
                     if user != nil {
                         userIsLoggeIn.toggle()
                     }
-
                 }
             }
         }
@@ -121,27 +123,18 @@ struct ContentView: View {
 
         }
     }
-
 }
 
 extension View {
-    /// - Parameters:
-    ///   - shouldShow: Условие отображения плейсхолдера (обычно когда поле пустое)
-    ///   - alignment: Выравнивание плейсхолдера (по умолчанию .leading - левый край)
-    ///   - placeholder: Замыкание, возвращающее View для плейсхолдера
-    /// - Returns: View с наложенным плейсхолдером
     func placeholder<Content: View>(
         when shouldShow: Bool,
         alignment: Alignment = .leading,
-        @ViewBuilder placeholder: () -> Content  // @ViewBuilder позволяет передавать несколько вью
+        @ViewBuilder placeholder: () -> Content
     ) -> some View {
-        // ZStack накладывает плейсхолдер поверх исходного View
         ZStack(alignment: alignment) {
-            // Плейсхолдер отображается только когда shouldShow = true
             placeholder()
-                .opacity(shouldShow ? 1 : 0)  // Прозрачность: 1 - видим, 0 - скрыт
+                .opacity(shouldShow ? 1 : 0)
 
-            // Исходное View (TextField или SecureField)
             self
         }
     }
